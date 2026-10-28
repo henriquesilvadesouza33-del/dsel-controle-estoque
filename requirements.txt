@@ -1,3 +1,5 @@
 streamlit
 pandas
 python-docx
+fpdf2
+supabase
