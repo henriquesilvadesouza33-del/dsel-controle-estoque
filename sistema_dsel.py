@@ -1,6 +1,6 @@
 import base64
 import streamlit as st
-import sqlite3
+import psycopg2  # Nova biblioteca para o banco na nuvem
 import pandas as pd
 from datetime import datetime, date
 import os
