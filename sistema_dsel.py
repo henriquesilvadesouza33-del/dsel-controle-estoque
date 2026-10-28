@@ -99,9 +99,12 @@ def exibir_logo(largura=200):
 
 def consultar_saldo(item, cor, tamanho, modelo, estado):
     with conectar() as conn:
-        res = conn.execute("SELECT SUM(qtd) FROM estoque WHERE item=? AND cor=? AND tamanho=? AND modelo=? AND estado=?", 
-                           (item, cor, tamanho, modelo, estado)).fetchone()
-        return res[0] if res and res[0] is not None else 0
+        with conn.cursor() as c:
+            c.execute("SELECT SUM(qtd) FROM estoque WHERE item=%s AND cor=%s AND tamanho=%s AND modelo=%s AND estado=%s", 
+                       (item, cor, tamanho, modelo, estado))
+            res = c.fetchone()
+            return res[0] if res and res[0] is not None else 0
+
 
 
 # --- 4. FUNÇÕES DE EXPORTAÇÃO ---
