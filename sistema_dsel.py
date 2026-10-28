@@ -374,7 +374,7 @@ else:
     CORES = ["Cinza", "Amarelo", "Azul", "Branco", "Verde", "Preto", "Marrom", "Laranja", "Vermelho"]
     ITENS = ["Camiseta", "Calça", "Bota", "Luvas", "Chapéu", "Boné", "Cinto", "Meias"]
     TAMANHOS = ["Único","P", "M", "G", "GG", "XG","XGG"] + [str(i).zfill(2) for i in range(34, 57)]
-    MODELOS = ["BRIM", "JEANS", "Padrão", "Botina", "Bontina Galocha", "luva de couro", "luva vaqueta", "Cano Alto", "Refletivo", "Elastano", "Tactel", "Camuflado"]
+    MODELOS = ["BRIM", "JEANS", "Padrão", "Botina", "Bontina Galocha", "luva de couro", "luva vaqueta","luvas de pvc cano longo", "Cano Alto", "Refletivo", "Elastano", "Tactel", "Camuflado"]
 
     with st.sidebar:
         exibir_logo(150)
