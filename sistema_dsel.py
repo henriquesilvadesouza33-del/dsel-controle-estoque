@@ -51,8 +51,16 @@ def rodape_henrique():
 
 
 # --- 2. BANCO DE DADOS ---
-def conectar(): 
-    return sqlite3.connect(DB_NAME)
+def conectar():
+    # Puxa as credenciais ocultas do painel do Streamlit Cloud de forma segura
+    return psycopg2.connect(
+        host=st.secrets["SUPABASE_HOST"],
+        database=st.secrets["SUPABASE_DB"],
+        user=st.secrets["SUPABASE_USER"],
+        password=st.secrets["SUPABASE_PASSWORD"],
+        port=st.secrets["SUPABASE_PORT"]
+    )
+
 
 def inicializar_banco():
     with conectar() as conn:
