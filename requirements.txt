@@ -1,5 +1,6 @@
-streamlit
+psycopg2-binary
 pandas
+openpyxl
 python-docx
 fpdf2
-supabase
+Pillow
