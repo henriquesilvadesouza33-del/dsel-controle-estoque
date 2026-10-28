@@ -61,31 +61,33 @@ def conectar():
         port=st.secrets["SUPABASE_PORT"]
     )
 
-
 def inicializar_banco():
     with conectar() as conn:
-        c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS usuarios (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                        nome TEXT UNIQUE, 
-                        senha TEXT, 
-                        status TEXT)''')
-        c.execute('''CREATE TABLE IF NOT EXISTS estoque (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                        item TEXT, 
-                        cor TEXT, 
-                        tamanho TEXT, 
-                        modelo TEXT, 
-                        qtd INTEGER, 
-                        estado TEXT, 
-                        nf TEXT, 
-                        pessoa TEXT, 
-                        data_hora TEXT, 
-                        almoxarife TEXT)''')
-        c.execute("INSERT OR IGNORE INTO usuarios (nome, senha, status) VALUES (?, ?, ?)", ('ADMIN', '123456', 'Ativo'))
-        c.execute("UPDATE estoque SET modelo = 'BRIM' WHERE modelo IN ('Calça BRIM', 'brim', 'Brim')")
-        c.execute("UPDATE estoque SET modelo = 'Padrão' WHERE modelo IN ('Manga Curta', 'Manga Longa')")
+        with conn.cursor() as c:
+            # Substituído AUTOINCREMENT por SERIAL (Padrão PostgreSQL da Nuvem)
+            c.execute('''CREATE TABLE IF NOT EXISTS usuarios (
+                            id SERIAL PRIMARY KEY, 
+                            nome TEXT UNIQUE, 
+                            senha TEXT, 
+                            status TEXT)''')
+            c.execute('''CREATE TABLE IF NOT EXISTS estoque (
+                            id SERIAL PRIMARY KEY, 
+                            item TEXT, 
+                            cor TEXT, 
+                            tamanho TEXT, 
+                            modelo TEXT, 
+                            qtd INTEGER, 
+                            estado TEXT, 
+                            nf TEXT, 
+                            pessoa TEXT, 
+                            data_hora TEXT, 
+                            almoxarife TEXT)''')
+            # Ajustado para ON CONFLICT (Regra do Supabase para evitar duplicar o ADMIN)
+            c.execute("INSERT INTO usuarios (nome, senha, status) VALUES ('ADMIN', '123456', 'Ativo') ON CONFLICT (nome) DO NOTHING")
+            c.execute("UPDATE estoque SET modelo = 'BRIM' WHERE modelo IN ('Calça BRIM', 'brim', 'Brim')")
+            c.execute("UPDATE estoque SET modelo = 'Padrão' WHERE modelo IN ('Manga Curta', 'Manga Longa')")
         conn.commit()
+
 
 inicializar_banco()
 
