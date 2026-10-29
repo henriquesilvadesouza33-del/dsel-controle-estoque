@@ -1,4 +1,5 @@
 import base64
+import html as _html
 import streamlit as st
 import psycopg2
 import psycopg2.errors
@@ -405,6 +406,89 @@ def mostrar_pdf_inline(comprovante_pdf, altura=700):
     st.markdown(pdf_display, unsafe_allow_html=True)
 
 
+def _logo_data_uri():
+    """Retorna o logo como data URI (PNG) para embutir no HTML. Imagens em
+    data URI funcionam em todos os navegadores (ao contrario de PDF em iframe)."""
+    caminho = NOME_LOGO_PDF if os.path.exists(NOME_LOGO_PDF) else NOME_LOGO
+    if not os.path.exists(caminho):
+        return None
+    try:
+        with open(caminho, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode("utf-8")
+        return f"data:image/png;base64,{b64}"
+    except Exception:
+        return None
+
+
+def mostrar_comprovante_html(nome_recebedor, df_itens, almoxarife_nome):
+    """Pre-visualizacao do comprovante em HTML nativo (compativel com Chrome,
+    Opera, Edge, Firefox). Substitui o iframe de PDF, que o Chrome/Opera
+    bloqueiam por seguranca quando a origem e um data URI application/pdf."""
+    e = _html.escape
+    logo = _logo_data_uri()
+    logo_html = (f'<img src="{logo}" alt="NOVACAP" style="height:60px;">'
+                 if logo else '<span style="font-weight:bold;">NOVACAP</span>')
+
+    linhas = ""
+    for _, row in df_itens.iterrows():
+        try:
+            qtd = abs(int(row.get('Qtd', 0)))
+        except Exception:
+            qtd = row.get('Qtd', '')
+        linhas += (
+            "<tr>"
+            f"<td style='border:1px solid #999;padding:5px;'>{e(str(row.get('Item','')))}</td>"
+            f"<td style='border:1px solid #999;padding:5px;'>{e(str(row.get('Modelo','')))}</td>"
+            f"<td style='border:1px solid #999;padding:5px;'>{e(str(row.get('Cor','')))}</td>"
+            f"<td style='border:1px solid #999;padding:5px;text-align:center;'>{e(str(row.get('Tam.','')))}</td>"
+            f"<td style='border:1px solid #999;padding:5px;text-align:center;'>{e(str(qtd))}</td>"
+            f"<td style='border:1px solid #999;padding:5px;text-align:center;'>{e(str(row.get('Estado','')))}</td>"
+            "</tr>"
+        )
+
+    data_hoje = date.today().strftime("%d/%m/%Y")
+    rodape = f"Sistema desenvolvido por Henrique Silva de Souza - {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    declaracao = ("Declaro que recebi o material descrito acima em perfeitas condi\u00e7\u00f5es e me "
+                  "comprometo a utiliz\u00e1-lo exclusivamente para as atividades relacionadas \u00e0s "
+                  "minhas fun\u00e7\u00f5es na NOVACAP.")
+
+    html_doc = f"""
+    <div style="background:#ffffff;color:#111;padding:28px;border:2px solid #333;border-radius:6px;font-family:Arial,Helvetica,sans-serif;max-width:800px;margin:auto;">
+        <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:16px;">
+            {logo_html}
+            <h2 style="margin:8px 0 2px 0;">NOVACAP - DSEL</h2>
+            <div style="font-weight:bold;font-size:13px;">DIVIS\u00c3O DE SEGURAN\u00c7A, LIMPEZA E CONSERVA\u00c7\u00c3O</div>
+            <div style="font-size:13px;">COMPROVANTE DE ENTREGA DE MATERIAL</div>
+        </div>
+        <table style="width:100%;font-size:14px;margin-bottom:14px;">
+            <tr><td style="padding:3px;"><b>Recebedor:</b> {e(str(nome_recebedor))}</td></tr>
+            <tr><td style="padding:3px;"><b>Data da Entrega:</b> {data_hoje}</td></tr>
+            <tr><td style="padding:3px;"><b>Respons\u00e1vel pelo Lan\u00e7amento:</b> {e(str(almoxarife_nome))}</td></tr>
+        </table>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+                <tr style="background:#dcdcdc;">
+                    <th style='border:1px solid #999;padding:6px;'>Item</th>
+                    <th style='border:1px solid #999;padding:6px;'>Modelo</th>
+                    <th style='border:1px solid #999;padding:6px;'>Cor</th>
+                    <th style='border:1px solid #999;padding:6px;'>Tam.</th>
+                    <th style='border:1px solid #999;padding:6px;'>Qtd</th>
+                    <th style='border:1px solid #999;padding:6px;'>Estado</th>
+                </tr>
+            </thead>
+            <tbody>{linhas}</tbody>
+        </table>
+        <p style="font-size:13px;margin-top:18px;line-height:1.5;">{declaracao}</p>
+        <div style="display:flex;justify-content:space-around;margin-top:50px;font-size:13px;text-align:center;">
+            <div style="border-top:1px solid #333;width:40%;padding-top:4px;">Assinatura do Recebedor</div>
+            <div style="border-top:1px solid #333;width:40%;padding-top:4px;">Assinatura do Almoxarife</div>
+        </div>
+        <div style="text-align:center;font-style:italic;font-size:11px;color:#555;margin-top:28px;">{e(rodape)}</div>
+    </div>
+    """
+    st.markdown(html_doc, unsafe_allow_html=True)
+
+
 # --- 5. CONTROLE DE ACESSO ---
 if 'logado' not in st.session_state:
     st.session_state.logado = False
@@ -694,7 +778,7 @@ else:
 
                     st.write("---")
                     st.subheader("\U0001F441\uFE0F Pré-visualização do Comprovante")
-                    mostrar_pdf_inline(comprovante_pdf, altura=700)
+                    mostrar_comprovante_html(pessoa_sel, df_pessoa, st.session_state.almoxarife)
 
                     st.download_button(
                         label="\U0001F4C4 Baixar Comprovante de Entrega (PDF)",
