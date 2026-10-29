@@ -489,6 +489,24 @@ def mostrar_comprovante_html(nome_recebedor, df_itens, almoxarife_nome):
     st.markdown(html_doc, unsafe_allow_html=True)
 
 
+def mostrar_comprovante_preview(pdf_bytes, nome_recebedor, df_itens, almoxarife_nome):
+    """Pre-visualizacao FIEL ao PDF impresso: renderiza o proprio PDF como
+    imagem, garantindo que a previa seja identica ao documento baixado/impresso
+    e funcione em qualquer navegador. Se a biblioteca de render nao estiver
+    instalada, usa um fallback em HTML."""
+    try:
+        import fitz  # PyMuPDF
+        doc = fitz.open(stream=bytes(pdf_bytes), filetype="pdf")
+        for page in doc:
+            pix = page.get_pixmap(dpi=150)
+            st.image(pix.tobytes("png"), width=720)
+        doc.close()
+        return
+    except Exception:
+        st.caption("Prévia em modo compatível (o PDF baixado mantém o layout oficial).")
+        mostrar_comprovante_html(nome_recebedor, df_itens, almoxarife_nome)
+
+
 # --- 5. CONTROLE DE ACESSO ---
 if 'logado' not in st.session_state:
     st.session_state.logado = False
@@ -778,7 +796,7 @@ else:
 
                     st.write("---")
                     st.subheader("\U0001F441\uFE0F Pré-visualização do Comprovante")
-                    mostrar_comprovante_html(pessoa_sel, df_pessoa, st.session_state.almoxarife)
+                    mostrar_comprovante_preview(comprovante_pdf, pessoa_sel, df_pessoa, st.session_state.almoxarife)
 
                     st.download_button(
                         label="\U0001F4C4 Baixar Comprovante de Entrega (PDF)",
