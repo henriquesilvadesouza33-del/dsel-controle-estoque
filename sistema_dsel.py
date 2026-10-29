@@ -7,6 +7,8 @@ from datetime import datetime, date
 import os
 import io
 import unicodedata
+import hashlib
+import secrets
 from docx import Document
 from fpdf import FPDF
 try:
@@ -80,6 +82,39 @@ def buscar_um(sql, params=None):
             return c.fetchone()
 
 
+# --- SEGURANCA DE SENHAS (LGPD) ---
+PREFIXO_HASH = "pbkdf2_sha256"
+ITERACOES_HASH = 260000
+
+
+def hash_senha(senha):
+    """Gera um hash seguro (PBKDF2-SHA256) com salt aleatorio."""
+    salt = secrets.token_hex(16)
+    dk = hashlib.pbkdf2_hmac("sha256", str(senha).encode("utf-8"),
+                             salt.encode("utf-8"), ITERACOES_HASH)
+    return f"{PREFIXO_HASH}${ITERACOES_HASH}${salt}${dk.hex()}"
+
+
+def eh_hash(valor):
+    return isinstance(valor, str) and valor.startswith(PREFIXO_HASH + "$")
+
+
+def verificar_senha(senha_digitada, armazenada):
+    """Compara a senha digitada com o valor guardado (hash novo ou texto antigo)."""
+    if armazenada is None:
+        return False
+    if eh_hash(armazenada):
+        try:
+            _, iteracoes, salt, hash_guardado = armazenada.split("$", 3)
+            dk = hashlib.pbkdf2_hmac("sha256", str(senha_digitada).encode("utf-8"),
+                                     salt.encode("utf-8"), int(iteracoes))
+            return secrets.compare_digest(dk.hex(), hash_guardado)
+        except Exception:
+            return False
+    # Compatibilidade: senha antiga guardada em texto puro
+    return secrets.compare_digest(str(senha_digitada), str(armazenada))
+
+
 def inicializar_banco():
     with conectar() as conn:
         with conn.cursor() as c:
@@ -100,7 +135,7 @@ def inicializar_banco():
                             pessoa TEXT,
                             data_hora TEXT,
                             almoxarife TEXT)''')
-            c.execute("INSERT INTO usuarios (nome, senha, status) VALUES ('ADMIN', '123456', 'Ativo') ON CONFLICT (nome) DO NOTHING")
+            c.execute("INSERT INTO usuarios (nome, senha, status) VALUES ('ADMIN', %s, 'Ativo') ON CONFLICT (nome) DO NOTHING", (hash_senha('123456'),))
             c.execute("UPDATE estoque SET modelo = 'BRIM' WHERE modelo IN ('Calca BRIM', 'brim', 'Brim')")
             c.execute("UPDATE estoque SET modelo = 'Padrao' WHERE modelo IN ('Manga Curta', 'Manga Longa')")
         conn.commit()
@@ -383,11 +418,16 @@ if not st.session_state.logado:
         s = st.text_input("Senha", type="password")
         if st.button("Entrar"):
             res = buscar_um(
-                "SELECT nome FROM usuarios WHERE UPPER(nome)=%s AND senha=%s AND status='Ativo'",
-                (u, s),
+                "SELECT nome, senha FROM usuarios WHERE UPPER(nome)=%s AND status='Ativo'",
+                (u,),
             )
-            if res:
+            if res and verificar_senha(s, res[1]):
+                # Atualiza automaticamente senhas antigas (texto puro) para hash
+                if not eh_hash(res[1]):
+                    executar("UPDATE usuarios SET senha=%s WHERE nome=%s", (hash_senha(s), res[0]))
                 st.session_state.logado, st.session_state.almoxarife = True, res[0]
+                # Forca troca se ainda estiver usando a senha padrao
+                st.session_state.precisa_trocar_senha = (s == "123456")
                 st.rerun()
             else:
                 st.error("Acesso negado.")
@@ -412,7 +452,8 @@ else:
             "\U0001F4D1 Extrato por Item",
             "\U0001F4CB Extrato Geral",
             "\U0001F4CA Relatorio Geral",
-            "\U0001F4C5 Lancamentos Diarios"
+            "\U0001F4C5 Lancamentos Diarios",
+            "\U0001F511 Minha Senha"
         ]
         if st.session_state.almoxarife == "ADMIN":
             opcoes.append("\u2699\uFE0F Gestao de Lancamentos")
@@ -423,6 +464,27 @@ else:
         if st.button("Sair"):
             st.session_state.logado = False
             st.rerun()
+
+    # --- Troca obrigatoria da senha padrao (LGPD) ---
+    if st.session_state.get("precisa_trocar_senha"):
+        st.warning("\u26A0\uFE0F Por seguranca (LGPD), defina uma nova senha antes de continuar. A senha padrao nao pode ser mantida.")
+        with st.form("form_troca_obrigatoria"):
+            nova1 = st.text_input("Nova senha", type="password")
+            nova2 = st.text_input("Confirme a nova senha", type="password")
+            if st.form_submit_button("Salvar nova senha"):
+                if not nova1 or len(nova1) < 6:
+                    st.error("A senha precisa ter pelo menos 6 caracteres.")
+                elif nova1 != nova2:
+                    st.error("As senhas nao conferem.")
+                elif nova1 == "123456":
+                    st.error("Escolha uma senha diferente da padrao.")
+                else:
+                    executar("UPDATE usuarios SET senha=%s WHERE nome=%s", (hash_senha(nova1), st.session_state.almoxarife))
+                    st.session_state.precisa_trocar_senha = False
+                    st.success("Senha atualizada! O sistema sera liberado.")
+                    st.rerun()
+        rodape_henrique()
+        st.stop()
 
     # --- 6. MODULOS ---
     if "Painel Principal" in menu:
@@ -648,6 +710,25 @@ else:
             st.info(f"Nenhum lancamento registrado em {data_sel_str}.")
         rodape_henrique()
 
+    elif "Minha Senha" in menu:
+        st.header("\U0001F511 Trocar Minha Senha")
+        with st.form("form_minha_senha"):
+            atual = st.text_input("Senha atual", type="password")
+            nova1 = st.text_input("Nova senha", type="password")
+            nova2 = st.text_input("Confirme a nova senha", type="password")
+            if st.form_submit_button("Alterar senha"):
+                reg = buscar_um("SELECT senha FROM usuarios WHERE nome=%s", (st.session_state.almoxarife,))
+                if not reg or not verificar_senha(atual, reg[0]):
+                    st.error("Senha atual incorreta.")
+                elif len(nova1) < 6:
+                    st.error("A nova senha precisa ter pelo menos 6 caracteres.")
+                elif nova1 != nova2:
+                    st.error("As senhas nao conferem.")
+                else:
+                    executar("UPDATE usuarios SET senha=%s WHERE nome=%s", (hash_senha(nova1), st.session_state.almoxarife))
+                    st.success("Senha alterada com sucesso!")
+        rodape_henrique()
+
     elif "Gestao de Lancamentos" in menu and st.session_state.almoxarife == "ADMIN":
         st.header("\u2699\uFE0F Gestao de Lancamentos (Modo Supervisor)")
         st.warning("\u26A0\uFE0F Atencao: A exclusao ou edicao de registros altera o saldo do estoque permanentemente.")
@@ -779,7 +860,7 @@ else:
                     st.warning("Preencha todos os campos obrigatorios.")
                 else:
                     try:
-                        executar("INSERT INTO usuarios (nome, senha, status) VALUES (%s, %s, %s)", (novo_nome, nova_senha, novo_status))
+                        executar("INSERT INTO usuarios (nome, senha, status) VALUES (%s, %s, %s)", (novo_nome, hash_senha(nova_senha), novo_status))
                         st.success(f"Usuario {novo_nome} cadastrado com sucesso!")
                     except psycopg2.errors.UniqueViolation:
                         st.error("Erro: Ja existe um usuario cadastrado com esse nome.")
@@ -805,11 +886,17 @@ else:
 
             if dados_user:
                 with st.form("form_edicao_usuario"):
-                    ed_senha = st.text_input("Nova Senha", value=str(dados_user[0]))
+                    ed_senha = st.text_input("Redefinir Senha (deixe em branco para manter a atual)", type="password")
                     ed_status = st.selectbox("Alterar Status", ["Ativo", "Inativo"], index=0 if dados_user[1] == "Ativo" else 1)
 
                     if st.form_submit_button("Confirmar Alteracoes"):
-                        executar("UPDATE usuarios SET senha = %s, status = %s WHERE nome = %s", (ed_senha, ed_status, usuario_selecionado))
+                        if ed_senha:
+                            if len(ed_senha) < 6:
+                                st.error("A nova senha precisa ter pelo menos 6 caracteres.")
+                                st.stop()
+                            executar("UPDATE usuarios SET senha = %s, status = %s WHERE nome = %s", (hash_senha(ed_senha), ed_status, usuario_selecionado))
+                        else:
+                            executar("UPDATE usuarios SET status = %s WHERE nome = %s", (ed_status, usuario_selecionado))
                         st.success(f"Dados do usuario {usuario_selecionado} atualizados!")
                         st.rerun()
         else:
