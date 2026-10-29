@@ -4,3 +4,4 @@ openpyxl
 python-docx
 fpdf2
 Pillow
+PyMuPDF
