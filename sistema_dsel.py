@@ -18,7 +18,7 @@ except ImportError:
     PIL_DISPONIVEL = False
 
 # --- 1. CONFIGURACOES E ESTILO ---
-st.set_page_config(page_title="DSEL - GESTAO NOVACAP", layout="wide")
+st.set_page_config(page_title="DSEL - GESTÃO NOVACAP", layout="wide")
 NOME_LOGO = "logo.novacap.png"
 NOME_LOGO_PDF = "NOVACAP_BRASILIA_LOGO.png"
 
@@ -137,7 +137,7 @@ def inicializar_banco():
                             almoxarife TEXT)''')
             c.execute("INSERT INTO usuarios (nome, senha, status) VALUES ('ADMIN', %s, 'Ativo') ON CONFLICT (nome) DO NOTHING", (hash_senha('123456'),))
             c.execute("UPDATE estoque SET modelo = 'BRIM' WHERE modelo IN ('Calca BRIM', 'brim', 'Brim')")
-            c.execute("UPDATE estoque SET modelo = 'Padrao' WHERE modelo IN ('Manga Curta', 'Manga Longa')")
+            c.execute("UPDATE estoque SET modelo = 'Padrão' WHERE modelo IN ('Manga Curta', 'Manga Longa')")
         conn.commit()
 
 
@@ -170,10 +170,10 @@ def gerar_excel(df):
     return output.getvalue()
 
 
-def gerar_word(df, titulo="Relatorio DSEL NOVACAP"):
+def gerar_word(df, titulo="Relatório DSEL NOVACAP"):
     doc = Document()
     doc.add_heading(titulo, 0)
-    doc.add_paragraph(f"Relatorio gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+    doc.add_paragraph(f"Relatório gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
     table = doc.add_table(rows=1, cols=len(df.columns))
     hdr_cells = table.rows[0].cells
     for i, col in enumerate(df.columns):
@@ -211,7 +211,7 @@ def remover_acentos(texto):
     return "".join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn')
 
 
-def gerar_pdf(df, titulo="Relatorio DSEL NOVACAP"):
+def gerar_pdf(df, titulo="Relatório DSEL NOVACAP"):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     pdf.set_font("Arial", 'B', 12)
@@ -278,7 +278,7 @@ def gerar_pdf(df, titulo="Relatorio DSEL NOVACAP"):
     return bytes(pdf.output())
 
 
-def botoes_exportacao(df, nome_base="relatorio", titulo_pdf="Relatorio DSEL NOVACAP"):
+def botoes_exportacao(df, nome_base="relatorio", titulo_pdf="Relatório DSEL NOVACAP"):
     col1, col2, col3, col4 = st.columns(4)
     data_str = datetime.now().strftime('%Y%m%d_%H%M')
     with col1:
@@ -322,7 +322,7 @@ def gerar_comprovante_entrega(nome_recebedor, df_itens, almoxarife_nome):
     pdf.set_font("Arial", 'B', 14)
     pdf.cell(0, 8, t("NOVACAP - DSEL"), ln=1, align='C')
     pdf.set_font("Arial", 'B', 10)
-    pdf.cell(0, 6, t("DIVISAO DE SEGURANCA, LIMPEZA E CONSERVACAO"), ln=1, align='C')
+    pdf.cell(0, 6, t("DIVISÃO DE SEGURANÇA, LIMPEZA E CONSERVAÇÃO"), ln=1, align='C')
     pdf.set_font("Arial", '', 10)
     pdf.cell(0, 6, t("COMPROVANTE DE ENTREGA DE MATERIAL"), ln=1, align='C')
     pdf.ln(2)
@@ -340,7 +340,7 @@ def gerar_comprovante_entrega(nome_recebedor, df_itens, almoxarife_nome):
     pdf.cell(0, 8, date.today().strftime("%d/%m/%Y"), ln=1)
 
     pdf.set_font("Arial", 'B', 10)
-    pdf.cell(60, 8, t("Responsavel pelo Lancamento:"), ln=0)
+    pdf.cell(60, 8, t("Responsável pelo Lançamento:"), ln=0)
     pdf.set_font("Arial", '', 10)
     pdf.cell(0, 8, t(almoxarife_nome), ln=1)
     pdf.ln(5)
@@ -369,9 +369,9 @@ def gerar_comprovante_entrega(nome_recebedor, df_itens, almoxarife_nome):
 
     pdf.ln(10)
     pdf.set_font("Arial", '', 9)
-    texto_declaracao = ("Declaro que recebi o material descrito acima em perfeitas condicoes e me "
+    texto_declaracao = ("Declaro que recebi o material descrito acima em perfeitas condições e me "
                         "comprometo a utiliza-lo exclusivamente para as atividades relacionadas as "
-                        "minhas funcoes na NOVACAP.")
+                        "minhas funções na NOVACAP.")
     pdf.multi_cell(0, 5, t(texto_declaracao))
     pdf.ln(15)
 
@@ -414,7 +414,7 @@ if not st.session_state.logado:
     with col2:
         exibir_logo(250)
         st.title("\U0001F510 Acesso DSEL")
-        u = st.text_input("Usuario").strip().upper()
+        u = st.text_input("Usuário").strip().upper()
         s = st.text_input("Senha", type="password")
         if st.button("Entrar"):
             res = buscar_um(
@@ -434,9 +434,9 @@ if not st.session_state.logado:
     rodape_henrique()
 else:
     CORES = ["Cinza", "Amarelo", "Azul", "Branco", "Verde", "Preto", "Marrom", "Laranja", "Vermelho"]
-    ITENS = ["Camiseta", "Calca", "Bota", "Luvas", "Chapeu", "Bone", "Cinto", "Meias"]
-    TAMANHOS = ["Unico", "P", "M", "G", "GG", "XG", "XGG"] + [str(i).zfill(2) for i in range(34, 57)]
-    MODELOS = ["BRIM", "JEANS", "Padrao", "Botina", "Bontina Galocha", "luva de couro", "luva vaqueta",
+    ITENS = ["Camiseta", "Calça", "Bota", "Luvas", "Chapéu", "Boné", "Cinto", "Meias"]
+    TAMANHOS = ["Único", "P", "M", "G", "GG", "XG", "XGG"] + [str(i).zfill(2) for i in range(34, 57)]
+    MODELOS = ["BRIM", "JEANS", "Padrão", "Botina", "Bontina Galocha", "luva de couro", "luva vaqueta",
                "luvas de pvc cano longo", "Cano Alto", "Refletivo", "Elastano", "Tactel", "Camuflado"]
 
     with st.sidebar:
@@ -446,21 +446,21 @@ else:
             "\U0001F3E0 Painel Principal",
             "\U0001F4E6 Saldo Geral",
             "\U0001F50D Consulta Individual",
-            "\U0001F4E5 Entrada (Fabrica)",
-            "\U0001F4E6 Entrega (Saida)",
-            "\U0001F504 Retorno/Devolucao",
+            "\U0001F4E5 Entrada (Fábrica)",
+            "\U0001F4E6 Entrega (Saída)",
+            "\U0001F504 Retorno/Devolução",
             "\U0001F4D1 Extrato por Item",
             "\U0001F4CB Extrato Geral",
-            "\U0001F4CA Relatorio Geral",
-            "\U0001F4C5 Lancamentos Diarios",
+            "\U0001F4CA Relatório Geral",
+            "\U0001F4C5 Lançamentos Diários",
             "\U0001F511 Minha Senha"
         ]
         if st.session_state.almoxarife == "ADMIN":
-            opcoes.append("\u2699\uFE0F Gestao de Lancamentos")
-            opcoes.append("\U0001F527 Ajuste de Inventario")
+            opcoes.append("\u2699\uFE0F Gestão de Lançamentos")
+            opcoes.append("\U0001F527 Ajuste de Inventário")
             opcoes.append("\U0001F195 Novo Cadastro")
-            opcoes.append("\u270F\uFE0F Editar Usuarios")
-        menu = st.radio("Navegacao", opcoes)
+            opcoes.append("\u270F\uFE0F Editar Usuários")
+        menu = st.radio("Navegação", opcoes)
         if st.button("Sair"):
             st.session_state.logado = False
             st.rerun()
@@ -501,12 +501,12 @@ else:
         rodape_henrique()
 
     elif "Saldo Geral" in menu:
-        st.header("\U0001F4E6 Saldo Geral Disponivel")
+        st.header("\U0001F4E6 Saldo Geral Disponível")
         with conectar() as conn:
             df_saldo = pd.read_sql_query("SELECT item as \"Item\", modelo as \"Modelo\", cor as \"Cor\", tamanho as \"Tam.\", estado as \"Estado\", SUM(qtd) as \"Saldo Atual\" FROM estoque GROUP BY item, modelo, cor, tamanho, estado HAVING SUM(qtd) != 0 ORDER BY item ASC", conn)
         if not df_saldo.empty:
             st.dataframe(df_saldo, use_container_width=True, hide_index=True)
-            st.info(f"\U0001F4A1 Total de pecas fisicas atualmente no estoque: **{df_saldo['Saldo Atual'].sum()}**")
+            st.info(f"\U0001F4A1 Total de peças físicas atualmente no estoque: **{df_saldo['Saldo Atual'].sum()}**")
             botoes_exportacao(df_saldo, "saldo_geral", "Saldo Geral de Estoque")
         else:
             st.info("Nenhum item com saldo positivo no estoque.")
@@ -514,7 +514,7 @@ else:
 
     elif "Consulta Individual" in menu:
         st.header("\U0001F50D Consulta por Reeducando")
-        busca = st.text_input("Digite o Nome, CPF ou Matricula:").strip().upper()
+        busca = st.text_input("Digite o Nome, CPF ou Matrícula:").strip().upper()
         if busca:
             with conectar() as conn:
                 query = "SELECT data_hora as \"Data/Hora\", item as \"Item\", modelo as \"Modelo\", cor as \"Cor\", tamanho as \"Tam.\", ABS(qtd) as \"Qtd. Retirada\", estado as \"Estado\", pessoa as \"Reeducando\", almoxarife as \"Almoxarife\" FROM estoque WHERE UPPER(pessoa) LIKE %s AND qtd < 0 ORDER BY id DESC"
@@ -527,8 +527,8 @@ else:
                 st.warning("Nenhum registro encontrado.")
         rodape_henrique()
 
-    elif "Entrada (Fabrica)" in menu:
-        st.header("\U0001F4E5 Entrada da Fabrica")
+    elif "Entrada (Fábrica)" in menu:
+        st.header("\U0001F4E5 Entrada da Fábrica")
         with st.form("ent"):
             nf = st.text_input("Nota Fiscal")
             it, co, ta, mod = st.selectbox("Item", ITENS), st.selectbox("Cor", CORES), st.selectbox("Tamanho", TAMANHOS), st.selectbox("Modelo", MODELOS)
@@ -540,10 +540,10 @@ else:
                 st.rerun()
         rodape_henrique()
 
-    elif "Entrega (Saida)" in menu:
+    elif "Entrega (Saída)" in menu:
         st.header("\U0001F4E4 Entrega de Fardamento")
         col1, col2, col3 = st.columns(3)
-        with col1: it = st.selectbox("Item", ITENS, index=ITENS.index("Calca") if "Calca" in ITENS else 0)
+        with col1: it = st.selectbox("Item", ITENS, index=ITENS.index("Calça") if "Calça" in ITENS else 0)
         with col2: co = st.selectbox("Cor", CORES)
         with col3: ta = st.selectbox("Tamanho", TAMANHOS)
         col4, col5 = st.columns(2)
@@ -552,7 +552,7 @@ else:
 
         saldo = consultar_saldo(it, co, ta, mod, est)
         if saldo > 0:
-            st.success(f"\u2705 Saldo disponivel: {saldo}")
+            st.success(f"\u2705 Saldo disponível: {saldo}")
         else:
             st.error(f"\u274C Estoque ZERADO para {it} {mod}")
 
@@ -562,35 +562,35 @@ else:
             if st.form_submit_button("Finalizar Entrega"):
                 saldo_atualizado = consultar_saldo(it, co, ta, mod, est)
                 if saldo_atualizado <= 0 or qt_saida > saldo_atualizado:
-                    st.error("Nao ha saldo suficiente disponivel no momento do envio!")
+                    st.error("Não há saldo suficiente disponível no momento do envio!")
                 elif not dest:
                     st.warning("Preencha o recebedor.")
                 else:
                     executar("INSERT INTO estoque (item, cor, tamanho, modelo, qtd, estado, pessoa, data_hora, almoxarife) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                              (it, co, ta, mod, -int(qt_saida), est, dest, datetime.now().strftime("%d/%m/%Y %H:%M"), st.session_state.almoxarife))
-                    st.success("Saida registrada com sucesso!")
+                    st.success("Saída registrada com sucesso!")
                     st.rerun()
         rodape_henrique()
 
-    elif "Retorno/Devolucao" in menu:
-        st.header("\U0001F504 Retorno / Devolucao de Item")
+    elif "Retorno/Devolução" in menu:
+        st.header("\U0001F504 Retorno / Devolução de Item")
         with st.form("devolucao"):
             it, co, ta, mod = st.selectbox("Item", ITENS), st.selectbox("Cor", CORES), st.selectbox("Tamanho", TAMANHOS), st.selectbox("Modelo", MODELOS)
             est = st.radio("Estado de retorno:", ["Usado/Reuso", "Novo"], horizontal=True)
             qt_ret = st.number_input("Quantidade Retornando", min_value=1)
-            origem = st.text_input("Quem esta devolvendo").upper()
+            origem = st.text_input("Quem está devolvendo").upper()
             if st.form_submit_button("Registrar Retorno"):
                 if not origem:
                     st.warning("Informe o reeducando.")
                 else:
                     executar("INSERT INTO estoque (item, cor, tamanho, modelo, qtd, estado, pessoa, data_hora, almoxarife) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                             (it, co, ta, mod, int(qt_ret), est, f"Devolucao: {origem}", datetime.now().strftime("%d/%m/%Y %H:%M"), st.session_state.almoxarife))
+                             (it, co, ta, mod, int(qt_ret), est, f"Devolução: {origem}", datetime.now().strftime("%d/%m/%Y %H:%M"), st.session_state.almoxarife))
                     st.success("Retorno registrado!")
                     st.rerun()
         rodape_henrique()
 
     elif "Extrato por Item" in menu:
-        st.header("\U0001F4D1 Extrato de Movimentacao por Item")
+        st.header("\U0001F4D1 Extrato de Movimentação por Item")
         col1, col2, col3 = st.columns(3)
         with col1: it = st.selectbox("Item", ITENS)
         with col2: co = st.selectbox("Cor", CORES)
@@ -605,25 +605,25 @@ else:
         if not df_extrato.empty:
             df_extrato['Saldo Acumulado'] = df_extrato['Qtd'].cumsum()
             st.dataframe(df_extrato, use_container_width=True, hide_index=True)
-            st.metric(label="Saldo Final Disponivel", value=f"{df_extrato['Saldo Acumulado'].iloc[-1]} unidades")
+            st.metric(label="Saldo Final Disponível", value=f"{df_extrato['Saldo Acumulado'].iloc[-1]} unidades")
             botoes_exportacao(df_extrato, f"extrato_{it}_{mod}", f"Extrato por Item - {it} {mod}")
         else:
-            st.info("Nenhuma movimentacao encontrada.")
+            st.info("Nenhuma movimentação encontrada.")
         rodape_henrique()
 
     elif "Extrato Geral" in menu:
-        st.header("\U0001F4CB Extrato Geral de Movimentacoes")
-        st.write("Historico consolidado de movimentacoes para visualizacao e impressao.")
+        st.header("\U0001F4CB Extrato Geral de Movimentações")
+        st.write("Histórico consolidado de movimentações para visualização e impressão.")
         with conectar() as conn:
             df_extrato_geral = pd.read_sql_query("SELECT data_hora as \"Data/Hora\", item as \"Item\", modelo as \"Modelo\", cor as \"Cor\", tamanho as \"Tam.\", qtd as \"Qtd\", estado as \"Estado\", nf as \"NF\", pessoa as \"Origem/Destino\", almoxarife as \"Almoxarife\" FROM estoque ORDER BY id DESC", conn)
 
         if not df_extrato_geral.empty:
-            botoes_exportacao(df_extrato_geral, "extrato_geral", "Extrato Geral de Movimentacoes")
+            botoes_exportacao(df_extrato_geral, "extrato_geral", "Extrato Geral de Movimentações")
             st.write("---")
             ver_preview = st.checkbox("\U0001F441\uFE0F Visualizar como ficara impresso")
             if ver_preview:
-                st.subheader("\U0001F4C4 Pre-visualizacao da Impressao")
-                st.markdown("<div style='background-color: #ffffff; color: #111111; padding: 25px; border-radius: 5px; border: 2px solid #333; font-family: Courier New, monospace;'><h3 style='text-align: center; margin-bottom: 0;'>NOVACAP - DIVISAO DE SEGURANCA, LIMPEZA E CONSERVACAO (DSEL)</h3><p style='text-align: center; margin-top: 5px;'><b>Relatorio consolidado de Extrato Geral</b></p><p style='text-align: right; font-size: 12px;'>Data de emissao: " + datetime.now().strftime('%d/%m/%Y %H:%M') + "</p><hr style='border-top: 1px dashed black; margin-bottom: 15px;'></div>", unsafe_allow_html=True)
+                st.subheader("\U0001F4C4 Pré-visualização da Impressão")
+                st.markdown("<div style='background-color: #ffffff; color: #111111; padding: 25px; border-radius: 5px; border: 2px solid #333; font-family: Courier New, monospace;'><h3 style='text-align: center; margin-bottom: 0;'>NOVACAP - DIVISÃO DE SEGURANÇA, LIMPEZA E CONSERVAÇÃO (DSEL)</h3><p style='text-align: center; margin-top: 5px;'><b>Relatório consolidado de Extrato Geral</b></p><p style='text-align: right; font-size: 12px;'>Data de emissão: " + datetime.now().strftime('%d/%m/%Y %H:%M') + "</p><hr style='border-top: 1px dashed black; margin-bottom: 15px;'></div>", unsafe_allow_html=True)
                 st.dataframe(df_extrato_geral, use_container_width=True, hide_index=True)
             st.write("### \U0001F4CB Tabela de Dados no Sistema")
             st.dataframe(df_extrato_geral, use_container_width=True, hide_index=True)
@@ -631,19 +631,19 @@ else:
             st.info("Nenhuma movimentacao registrada no sistema.")
         rodape_henrique()
 
-    elif "Relatorio Geral" in menu:
-        st.header("\U0001F4CA Movimentacao Completa (Tabela do Banco)")
+    elif "Relatório Geral" in menu:
+        st.header("\U0001F4CA Movimentação Completa (Tabela do Banco)")
         with conectar() as conn:
             df_geral = pd.read_sql_query("SELECT * FROM estoque ORDER BY id DESC", conn)
         if not df_geral.empty:
             st.dataframe(df_geral, use_container_width=True, hide_index=True)
-            botoes_exportacao(df_geral, "relatorio_geral", "Relatorio Geral Completo")
+            botoes_exportacao(df_geral, "relatorio_geral", "Relatório Geral Completo")
         else:
             st.info("Nenhuma movimentacao registrada.")
         rodape_henrique()
 
-    elif "Lancamentos Diarios" in menu:
-        st.header("\U0001F4C5 Lancamentos do Dia")
+    elif "Lançamentos Diários" in menu:
+        st.header("\U0001F4C5 Lançamentos do Dia")
         data_calendario = st.date_input("Selecione a data para filtrar:", date.today(), format="DD/MM/YYYY")
         data_sel_str = data_calendario.strftime("%d/%m/%Y")
         st.subheader(f"Data: {data_sel_str}")
@@ -656,16 +656,16 @@ else:
             )
 
         if not df_diario.empty:
-            st.success(f"\u2705 {len(df_diario)} lancamento(s) encontrado(s) para {data_sel_str}.")
+            st.success(f"\u2705 {len(df_diario)} lançamento(s) encontrado(s) para {data_sel_str}.")
             st.dataframe(df_diario, use_container_width=True, hide_index=True)
 
             entradas = df_diario[df_diario['Qtd'] > 0]['Qtd'].sum()
             saidas = abs(df_diario[df_diario['Qtd'] < 0]['Qtd'].sum())
             col1, col2 = st.columns(2)
             col1.metric("\U0001F4E5 Total de Entradas", f"{entradas} un")
-            col2.metric("\U0001F4E4 Total de Saidas", f"{saidas} un")
+            col2.metric("\U0001F4E4 Total de Saídas", f"{saidas} un")
 
-            botoes_exportacao(df_diario, f"lancamentos_diarios_{data_sel_str.replace('/','')}", "Lancamentos Diarios - DSEL")
+            botoes_exportacao(df_diario, f"lancamentos_diarios_{data_sel_str.replace('/','')}", "Lançamentos Diários - DSEL")
 
             st.divider()
             st.subheader("\U0001F5A8\uFE0F Comprovante de Entrega por Pessoa")
@@ -673,8 +673,8 @@ else:
 
             saidas_hoje = df_diario[df_diario['Qtd'] < 0]
             saidas_hoje = saidas_hoje[
-                ~saidas_hoje['Origem/Destino'].astype(str).str.upper().isin(['FABRICA', 'AJUSTE']) &
-                ~saidas_hoje['Origem/Destino'].astype(str).str.upper().str.startswith('DEVOLUCAO')
+                ~saidas_hoje['Origem/Destino'].astype(str).str.upper().apply(remover_acentos).isin(['FABRICA', 'AJUSTE']) &
+                ~saidas_hoje['Origem/Destino'].astype(str).str.upper().apply(remover_acentos).str.startswith('DEVOLUCAO')
             ]
 
             if not saidas_hoje.empty:
@@ -693,7 +693,7 @@ else:
                     comprovante_pdf = gerar_comprovante_entrega(pessoa_sel, df_pessoa, st.session_state.almoxarife)
 
                     st.write("---")
-                    st.subheader("\U0001F441\uFE0F Pre-visualizacao do Comprovante")
+                    st.subheader("\U0001F441\uFE0F Pré-visualização do Comprovante")
                     mostrar_pdf_inline(comprovante_pdf, altura=700)
 
                     st.download_button(
@@ -703,11 +703,11 @@ else:
                         mime="application/pdf"
                     )
 
-                    st.info("\U0001F4A1 O PDF gerado inclui: logo NOVACAP, cabecalho DSEL, lista de itens, data, nome do almoxarife, declaracao de recebimento, campos para assinatura e rodape com credito do desenvolvedor.")
+                    st.info("\U0001F4A1 O PDF gerado inclui: logo NOVACAP, cabeçalho DSEL, lista de itens, data, nome do almoxarife, declaração de recebimento, campos para assinatura e rodapé com crédito do desenvolvedor.")
             else:
-                st.info(f"Nenhuma entrega (saida) registrada em {data_sel_str} para geracao de comprovantes.")
+                st.info(f"Nenhuma entrega (saída) registrada em {data_sel_str} para geração de comprovantes.")
         else:
-            st.info(f"Nenhum lancamento registrado em {data_sel_str}.")
+            st.info(f"Nenhum lançamento registrado em {data_sel_str}.")
         rodape_henrique()
 
     elif "Minha Senha" in menu:
@@ -729,14 +729,14 @@ else:
                     st.success("Senha alterada com sucesso!")
         rodape_henrique()
 
-    elif "Gestao de Lancamentos" in menu and st.session_state.almoxarife == "ADMIN":
-        st.header("\u2699\uFE0F Gestao de Lancamentos (Modo Supervisor)")
-        st.warning("\u26A0\uFE0F Atencao: A exclusao ou edicao de registros altera o saldo do estoque permanentemente.")
+    elif "Gestão de Lançamentos" in menu and st.session_state.almoxarife == "ADMIN":
+        st.header("\u2699\uFE0F Gestão de Lançamentos (Modo Supervisor)")
+        st.warning("\u26A0\uFE0F Atenção: A exclusão ou edição de registros altera o saldo do estoque permanentemente.")
         with conectar() as conn:
             df_admin = pd.read_sql_query("SELECT * FROM estoque ORDER BY id DESC", conn)
 
         if not df_admin.empty:
-            st.subheader("\U0001F50D 1. Encontrar Lancamento")
+            st.subheader("\U0001F50D 1. Encontrar Lançamento")
             termo_busca = st.text_input("Digite o nome do Recebedor/Reeducando, ID, NF ou Item para filtrar:").strip().upper()
 
             if termo_busca:
@@ -760,7 +760,7 @@ else:
                     id_registro_banco = lista_opcoes[selecionado_rotulo]
                     reg_atual = df_admin[df_admin['id'] == id_registro_banco].iloc[0]
                     st.divider()
-                    st.subheader("\U0001F4DD Formulario de Alteracao - Registro Interno")
+                    st.subheader("\U0001F4DD Formulário de Alteração - Registro Interno")
 
                     col_form1, col_form2, col_form3 = st.columns(3)
                     with col_form1:
@@ -770,8 +770,8 @@ else:
                         novo_modelo = st.selectbox("Corrigir Modelo:", MODELOS, index=MODELOS.index(reg_atual['modelo']) if reg_atual['modelo'] in MODELOS else 0)
                         novo_tamanho = st.selectbox("Corrigir Tam:", TAMANHOS, index=TAMANHOS.index(reg_atual['tamanho']) if reg_atual['tamanho'] in TAMANHOS else 0)
                     with col_form3:
-                        nova_qtd = st.number_input("Corrigir Qtd (Valores negativos indicam Saidas):", value=int(reg_atual['qtd']))
-                        novo_destino = st.text_input("Corrigir Responsavel/Destino:", value=str(reg_atual['pessoa'])).upper()
+                        nova_qtd = st.number_input("Corrigir Qtd (Valores negativos indicam Saídas):", value=int(reg_atual['qtd']))
+                        novo_destino = st.text_input("Corrigir Responsável/Destino:", value=str(reg_atual['pessoa'])).upper()
 
                     st.write("---")
                     st.subheader("\U0001F504 Alterar Estado do Item")
@@ -789,34 +789,34 @@ else:
                     col_btn1, col_btn2, col_btn3 = st.columns(3)
 
                     with col_btn1:
-                        if st.button("\U0001F4BE Salvar Alteracoes", type="primary"):
+                        if st.button("\U0001F4BE Salvar Alterações", type="primary"):
                             executar("UPDATE estoque SET item=%s, modelo=%s, cor=%s, tamanho=%s, qtd=%s, pessoa=%s, estado=%s WHERE id=%s",
                                      (novo_item, novo_modelo, nova_cor, novo_tamanho, int(nova_qtd), novo_destino, novo_estado, int(id_registro_banco)))
-                            st.success("Lancamento atualizado com sucesso!")
+                            st.success("Lançamento atualizado com sucesso!")
                             st.rerun()
 
                     with col_btn2:
-                        if st.button("\U0001F6A8 Confirmar Exclusao Definitiva", type="secondary"):
+                        if st.button("\U0001F6A8 Confirmar Exclusão Definitiva", type="secondary"):
                             executar("DELETE FROM estoque WHERE id = %s", (int(id_registro_banco),))
-                            st.warning("Lancamento apagado permanentemente.")
+                            st.warning("Lançamento apagado permanentemente.")
                             st.rerun()
 
                     with col_btn3:
-                        if st.button("\u274C Cancelar Operacao"):
-                            st.info("Acao cancelada.")
+                        if st.button("\u274C Cancelar Operação"):
+                            st.info("Ação cancelada.")
                             st.rerun()
             else:
-                st.error("Nenhum lancamento corresponde aos termos pesquisados.")
-            st.write("### \U0001F4CB Historico Completo de Auditoria")
+                st.error("Nenhum lançamento corresponde aos termos pesquisados.")
+            st.write("### \U0001F4CB Histórico Completo de Auditoria")
             st.dataframe(df_admin, use_container_width=True, hide_index=True)
-            botoes_exportacao(df_admin, "gestao_lancamentos", "Gestao de Lancamentos - Auditoria")
+            botoes_exportacao(df_admin, "gestao_lancamentos", "Gestão de Lançamentos - Auditoria")
         else:
             st.info("Nenhuma movimentacao registrada no sistema.")
         rodape_henrique()
 
-    elif "Ajuste de Inventario" in menu and st.session_state.almoxarife == "ADMIN":
-        st.header("\U0001F527 Ajuste de Balanco de Inventario")
-        st.write("Utilize esta aba para forcar o saldo do sistema a bater exatamente com o estoque fisico contado.")
+    elif "Ajuste de Inventário" in menu and st.session_state.almoxarife == "ADMIN":
+        st.header("\U0001F527 Ajuste de Balanço de Inventário")
+        st.write("Utilize esta aba para forçar o saldo do sistema a bater exatamente com o estoque físico contado.")
 
         col_adj1, col_adj2, col_adj3 = st.columns(3)
         with col_adj1: item_adj = st.selectbox("Item para Ajustar", ITENS)
@@ -831,56 +831,56 @@ else:
         st.metric(label="Saldo Atual no Sistema", value=f"{saldo_sistema} unidades")
 
         with st.form("form_ajuste"):
-            qtd_real_fisica = st.number_input("Quantidade Real Encontrada no Armario (Fisico):", min_value=0, value=int(saldo_sistema))
-            motivo_ajuste = st.text_input("Motivo do Ajuste (Ex: Inventario Geral 2026, Correcao de quebra)").upper()
+            qtd_real_fisica = st.number_input("Quantidade Real Encontrada no Armário (Físico):", min_value=0, value=int(saldo_sistema))
+            motivo_ajuste = st.text_input("Motivo do Ajuste (Ex: Inventário Geral 2026, Correção de quebra)").upper()
 
             if st.form_submit_button("\U0001F528 Aplicar Ajuste de Estoque"):
                 diferenca = qtd_real_fisica - saldo_sistema
                 if diferenca == 0:
-                    st.info("O valor digitado e igual ao do sistema. Nenhum ajuste necessario.")
+                    st.info("O valor digitado é igual ao do sistema. Nenhum ajuste necessário.")
                 elif not motivo_ajuste:
                     st.warning("Descreva o motivo do ajuste para fins de auditoria.")
                 else:
                     executar("INSERT INTO estoque (item, cor, tamanho, modelo, qtd, estado, nf, pessoa, data_hora, almoxarife) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
                              (item_adj, cor_adj, tam_adj, mod_adj, int(diferenca), est_adj, "AJUSTE", f"INV: {motivo_ajuste}",
                               datetime.now().strftime("%d/%m/%Y %H:%M"), st.session_state.almoxarife))
-                    st.success(f"Estoque ajustado! Lancamento de balanceamento de {diferenca} unidades registrado.")
+                    st.success(f"Estoque ajustado! Lançamento de balanceamento de {diferenca} unidades registrado.")
                     st.rerun()
         rodape_henrique()
 
     elif "Novo Cadastro" in menu and st.session_state.almoxarife == "ADMIN":
-        st.header("\U0001F195 Novo Cadastro de Usuarios do Sistema")
+        st.header("\U0001F195 Novo Cadastro de Usuários do Sistema")
         with st.form("form_novo_usuario"):
-            novo_nome = st.text_input("Nome do Usuario/Almoxarife").strip().upper()
+            novo_nome = st.text_input("Nome do Usuário/Almoxarife").strip().upper()
             nova_senha = st.text_input("Senha de Acesso", type="password")
             novo_status = st.selectbox("Status Inicial", ["Ativo", "Inativo"])
 
-            if st.form_submit_button("Salvar Usuario"):
+            if st.form_submit_button("Salvar Usuário"):
                 if not novo_nome or not nova_senha:
-                    st.warning("Preencha todos os campos obrigatorios.")
+                    st.warning("Preencha todos os campos obrigatórios.")
                 else:
                     try:
                         executar("INSERT INTO usuarios (nome, senha, status) VALUES (%s, %s, %s)", (novo_nome, hash_senha(nova_senha), novo_status))
-                        st.success(f"Usuario {novo_nome} cadastrado com sucesso!")
+                        st.success(f"Usuário {novo_nome} cadastrado com sucesso!")
                     except psycopg2.errors.UniqueViolation:
-                        st.error("Erro: Ja existe um usuario cadastrado com esse nome.")
+                        st.error("Erro: Já existe um usuário cadastrado com esse nome.")
                     except Exception as e:
-                        st.error(f"Erro ao cadastrar usuario: {e}")
+                        st.error(f"Erro ao cadastrar usuário: {e}")
         rodape_henrique()
 
-    elif "Editar Usuarios" in menu and st.session_state.almoxarife == "ADMIN":
-        st.header("\u270F\uFE0F Gerenciamento e Edicao de Usuarios")
+    elif "Editar Usuários" in menu and st.session_state.almoxarife == "ADMIN":
+        st.header("\u270F\uFE0F Gerenciamento e Edição de Usuários")
         with conectar() as conn:
             df_usuarios = pd.read_sql_query("SELECT id, nome, status FROM usuarios ORDER BY nome ASC", conn)
 
         if not df_usuarios.empty:
-            st.subheader("Lista de Usuarios Cadastrados")
+            st.subheader("Lista de Usuários Cadastrados")
             st.dataframe(df_usuarios, use_container_width=True, hide_index=True)
-            botoes_exportacao(df_usuarios, "usuarios_cadastrados", "Usuarios do Sistema")
+            botoes_exportacao(df_usuarios, "usuarios_cadastrados", "Usuários do Sistema")
 
             st.write("---")
-            st.subheader("Alterar Dados de um Usuario")
-            usuario_selecionado = st.selectbox("Selecione o usuario para modificar:", df_usuarios["nome"].tolist())
+            st.subheader("Alterar Dados de um Usuário")
+            usuario_selecionado = st.selectbox("Selecione o usuário para modificar:", df_usuarios["nome"].tolist())
 
             dados_user = buscar_um("SELECT senha, status FROM usuarios WHERE nome = %s", (usuario_selecionado,))
 
@@ -889,7 +889,7 @@ else:
                     ed_senha = st.text_input("Redefinir Senha (deixe em branco para manter a atual)", type="password")
                     ed_status = st.selectbox("Alterar Status", ["Ativo", "Inativo"], index=0 if dados_user[1] == "Ativo" else 1)
 
-                    if st.form_submit_button("Confirmar Alteracoes"):
+                    if st.form_submit_button("Confirmar Alterações"):
                         if ed_senha:
                             if len(ed_senha) < 6:
                                 st.error("A nova senha precisa ter pelo menos 6 caracteres.")
@@ -897,7 +897,7 @@ else:
                             executar("UPDATE usuarios SET senha = %s, status = %s WHERE nome = %s", (hash_senha(ed_senha), ed_status, usuario_selecionado))
                         else:
                             executar("UPDATE usuarios SET status = %s WHERE nome = %s", (ed_status, usuario_selecionado))
-                        st.success(f"Dados do usuario {usuario_selecionado} atualizados!")
+                        st.success(f"Dados do usuário {usuario_selecionado} atualizados!")
                         st.rerun()
         else:
             st.info("Nenhum usuario cadastrado no sistema.")
