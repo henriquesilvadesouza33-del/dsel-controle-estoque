@@ -448,7 +448,7 @@ def mostrar_comprovante_html(nome_recebedor, df_itens, almoxarife_nome):
         )
 
     data_hoje = date.today().strftime("%d/%m/%Y")
-    rodape = f"Sistema desenvolvido por Henrique Silva de Souza - {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    rodape = f"Sistema desenvolvido por Henrique Silva de Souza - {datetime.now(ZoneInfo('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')}"
     declaracao = ("Declaro que recebi o material descrito acima em perfeitas condi\u00e7\u00f5es e me "
                   "comprometo a utiliz\u00e1-lo exclusivamente para as atividades relacionadas \u00e0s "
                   "minhas fun\u00e7\u00f5es na NOVACAP.")
