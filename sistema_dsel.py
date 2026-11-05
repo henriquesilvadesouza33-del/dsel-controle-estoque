@@ -5,6 +5,7 @@ import psycopg2
 import psycopg2.errors
 import pandas as pd
 from datetime import datetime, date
+from zoneinfo import ZoneInfo
 import os
 import io
 import unicodedata
