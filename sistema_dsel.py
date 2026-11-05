@@ -671,7 +671,7 @@ else:
                     st.warning("Preencha o recebedor.")
                 else:
                     executar("INSERT INTO estoque (item, cor, tamanho, modelo, qtd, estado, pessoa, data_hora, almoxarife) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                             (it, co, ta, mod, -int(qt_saida), est, dest, datetime.now().strftime("%d/%m/%Y %H:%M"), st.session_state.almoxarife))
+                            (it, co, ta, mod, -int(qt_saida), est, dest, datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M"), st.session_state.almoxarife))
                     st.success("Saída registrada com sucesso!")
                     st.rerun()
         rodape_henrique()
@@ -688,7 +688,8 @@ else:
                     st.warning("Informe o reeducando.")
                 else:
                     executar("INSERT INTO estoque (item, cor, tamanho, modelo, qtd, estado, pessoa, data_hora, almoxarife) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                             (it, co, ta, mod, int(qt_ret), est, f"Devolução: {origem}", datetime.now().strftime("%d/%m/%Y %H:%M"), st.session_state.almoxarife))
+                            (it, co, ta, mod, int(qt_ret), est, f"Devolução: {origem}", datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M"), st.session_state.almoxarife))
+
                     st.success("Retorno registrado!")
                     st.rerun()
         rodape_henrique()
