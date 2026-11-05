@@ -282,7 +282,7 @@ def gerar_pdf(df, titulo="Relatório DSEL NOVACAP"):
 
 def botoes_exportacao(df, nome_base="relatorio", titulo_pdf="Relatório DSEL NOVACAP"):
     col1, col2, col3, col4 = st.columns(4)
-    data_str = datetime.now().strftime('%Y%m%d_%H%M')
+    data_str = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y%m%d_%H%M%S")
     with col1:
         st.download_button("\U0001F4CA Excel", gerar_excel(df), f"{nome_base}_{data_str}.xlsx",
                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
