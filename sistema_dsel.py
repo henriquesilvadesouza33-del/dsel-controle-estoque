@@ -638,7 +638,8 @@ else:
             qt = st.number_input("Quantidade", min_value=1)
             if st.form_submit_button("Salvar Entrada"):
                 executar("INSERT INTO estoque (item, cor, tamanho, modelo, qtd, estado, nf, pessoa, data_hora, almoxarife) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                         (it, co, ta, mod, qt, "Novo", nf, "Fabrica", datetime.now().strftime("%d/%m/%Y %H:%M"), st.session_state.almoxarife))
+                         (it, co, ta, mod, qt, "Novo", nf, "Fabrica", datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M")
+
                 st.success("Registrado!")
                 st.rerun()
         rodape_henrique()
