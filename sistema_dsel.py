@@ -389,7 +389,7 @@ def gerar_comprovante_entrega(nome_recebedor, df_itens, almoxarife_nome):
 
     pdf.set_y(-20)
     pdf.set_font("Arial", 'I', 8)
-    texto_rodape = f"Sistema desenvolvido por Henrique Silva de Souza - {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+    texto_rodape = f"Sistema desenvolvido por Henrique Silva de Souza - {datetime.now(ZoneInfo('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')}"
     pdf.cell(0, 5, t(texto_rodape), ln=1, align='C')
 
     return bytes(pdf.output())
