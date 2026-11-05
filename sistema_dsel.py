@@ -219,7 +219,7 @@ def gerar_pdf(df, titulo="Relatório DSEL NOVACAP"):
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, remover_acentos(titulo), ln=1, align='C')
     pdf.set_font("Arial", '', 8)
-    pdf.cell(0, 6, f"Gerado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}", ln=1, align='C')
+    pdf.cell(0, 6, f"Gerado em: {datetime.now(ZoneInfo('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')}", ln=1, align='C')
     pdf.ln(4)
 
     larguras_padrao = {
