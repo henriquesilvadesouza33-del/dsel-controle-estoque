@@ -175,7 +175,7 @@ def gerar_excel(df):
 def gerar_word(df, titulo="Relatório DSEL NOVACAP"):
     doc = Document()
     doc.add_heading(titulo, 0)
-    documento.adicionar_parágrafo(f"Relatório gerado em: {datetime.now(ZoneInfo('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')}")
+    documento.add_paragraph(f"Relatório gerado em: {datetime.now(ZoneInfo('America/Sao_Paulo')).strftime('%d/%m/%Y %H:%M')}")
     table = doc.add_table(rows=1, cols=len(df.columns))
     hdr_cells = table.rows[0].cells
     for i, col in enumerate(df.columns):
